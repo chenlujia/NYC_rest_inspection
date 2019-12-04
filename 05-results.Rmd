@@ -1,1 +1,171 @@
 # Results
+
+a) Which part of NYC has restaurants with relatively low grades and relatively high grades?
+ 
+b) Is there a relationship between the type of restaurants and the type of violations?
+
+c) Do all restaurants in the same franchise have similar violation types? What might be the reason for the results?
+
+
+1. First, take a look at the distributions of all restaurants inspected in NYC. Each point in the following map represents a unique restaurant. It is clear that Manhattan has the highest density of restaurant distribution among all boroughs. The density is also quite high along the coastline for Queens and Brooklyn compared to the densities in the other areas.
+
+```{r}
+library(ggmap)
+register_google(key="AIzaSyBrIvXrqMDIGTB8kH6g5YSTSlOxVcknHas")
+has_google_key()
+```
+
+```{r}
+nyc_map <- get_map(location = c(lon = -74.00, lat = 40.71), maptype = "terrain", zoom = 11)
+
+ggmap(nyc_map)+ 
+  geom_point(aes(x=restaurant$Longitude,y=restaurant$Latitude),data=restaurant,alpha=0.1,size=0.7)
+```
+
+Here is an interactive map to show the number of restaurants in each selected area. Zoom-in and Zoom-out allow for inspection on smaller and larger scale.
+
+```{r}
+library(leaflet)
+library(leaflet.extras)
+library(htmltools)
+restaurant %>%
+  leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(
+    radius = 2,
+    label = ~ htmlEscape(`DBA`),
+    clusterOptions = markerClusterOptions()
+  ) 
+```
+
+```{r}
+lat <- mean(restaurant$Latitude)
+lon <- mean(restaurant$Longitude)
+
+leaflet(restaurant) %>%
+  addProviderTiles(providers$CartoDB.DarkMatterNoLabels) %>%
+  addWebGLHeatmap(size = 15, units = "px")  %>%
+  setView(lng = lon, lat = lat, zoom = 10)
+```
+
+
+
+2. Now we will take a look at the cuisine type of all restaurants inspected. we notice that American and Chinese cuisines take a large percentage in the restaurants inspected. Since the dataset is quite general on all active restaurants in NYC, we can tell that most of the restaurants are American or Chinese in NYC. The number of American restaurants is over 80,000, which is quite surprising for us as this number is much larger than we thought it to be.
+
+```{r}
+library(treemap)
+type_number<-restaurant %>%
+  group_by(CUISINE.DESCRIPTION) %>%
+  summarise(n=n())
+```
+
+```{r}
+treemap(type_number,
+        index=c("CUISINE.DESCRIPTION"),
+        vSize="n",
+        vColor="n",
+        type="value")
+```
+
+
+3. Now we are interested in exploring whether there is a relationship between boroughs and cuisine types. Here we use a stacked bar chart with each bar representing a certain cuisine type and fill each bar according to the percentage of this type in each borough. Note that we only take into account the cuisine types with quantities over 200 in each borough to reduce the complexity of the chart and make it more clear.
+
+```{r}
+type_boro<-restaurant %>%
+  group_by(CUISINE.DESCRIPTION,BORO) %>%
+  summarize(count=n()) %>%
+  filter(count>200)%>%
+  mutate(prop=count/sum(count)) %>%
+  ungroup()
+
+ggplot(type_boro,aes(x=CUISINE.DESCRIPTION,fill=BORO,y=prop)) +
+  geom_bar(stat="identity") #+ 
+  #coord_flip()
+```
+
+
+
+
+4. Now we take a look at the grades according to each cuisine type. 
+
+```{r}
+type_grade<-restaurant %>%
+  group_by(CUISINE.DESCRIPTION,GRADE) %>%
+    summarize(count=n()) %>%
+  mutate(prop=count/sum(count)) %>%
+    filter(GRADE %in% c("A","B","C","G","N","P","Z"))%>%
+  ungroup()
+# 如何按照A 的比例排序？
+ggplot(type_grade,aes(x=fct_reorder2(CUISINE.DESCRIPTION,GRADE=="A",GRADE,.desc=FALSE),fill=GRADE,y=prop)) +
+  geom_bar(stat="identity") #+ 
+  #coord_flip()
+```
+
+```{r}
+library(GGally)
+library(ggpubr)
+
+type_grade<-restaurant %>%
+  group_by(CUISINE.DESCRIPTION,GRADE) %>%
+    summarize(count=n()) %>%
+  mutate(prop=count/sum(count)) %>%
+    filter( GRADE %in% c("A","B","C","G","N","P","Z"))%>%
+  ungroup()
+#type_grade
+type_grade$CUISINE.DESCRIPTION<-as.character(type_grade$CUISINE.DESCRIPTION)
+#factor(type_grade$CUISINE.DESCRIPTION)
+
+type_grade_mess<-type_grade%>%
+    filter(count>500) %>%
+  select(-c(count)) 
+
+type_grade_mess<-pivot_wider(data=type_grade_mess,id_cols=CUISINE.DESCRIPTION,names_from=GRADE,values_from=prop)
+
+
+ggballoonplot(type_grade, x = "CUISINE.DESCRIPTION", y = "GRADE", size = "prop",
+              fill = "count", 
+              ggtheme = theme_bw()) +
+  scale_fill_viridis_c(option = "C")
+```
+
+```{r}
+ggpairs(data=type_grade_mess,columns=1:2,cardinality_threshold =90)
+```
+
+
+5. Then we look at the grades for restaurants according to borough. 
+```{r}
+restaurant<-restaurant[(!restaurant$BORO=="0")& restaurant$GRADE 
+                       %in% c("A","B","C","G","N","P","Z") & (!restaurant$Latitude =="0") & (!restaurant$GRADE =='NA') & (!restaurant$BORO =='NA'),] %>%
+  mutate(BORO_abb=substr(BORO,0,4))
+
+ggplot(restaurant)+
+  geom_bar(aes(x=BORO_abb))+
+  facet_wrap(~GRADE,scale="free")+
+  theme(axis.text.x = element_text(angle=45, hjust=1))
+```
+From the bar charts above, we can get the general idea of how the grades are related to boroughs. Since the distributions of the number of restaurants in each borough are very similar under each score, we can conclude that the grades of restaurants have almost no relationship with boroughs.
+
+To get a more detailed view of the relationship, we draw another version of the same data below. Here we count the proportion of each grade in each borough. Note that this bar chart makes more sense since it is the proportion that really matters instead of the number itself.
+
+```{r}
+type_grade<-restaurant %>%
+  group_by(BORO,GRADE) %>%
+  filter(!BORO=='0') %>%
+    summarize(count=n()) %>%
+  mutate(prop=count/sum(count)) %>%
+    filter(GRADE %in% c("A","B","C","G","N","P","Z"))%>%
+  ungroup()
+# 如何按照A 的比例排序？
+ggplot(type_grade,aes(x=BORO,fill=GRADE,y=prop)) +
+  geom_bar(stat="identity") + 
+  coord_flip()
+```
+
+
+
+6. 
+
+
+
+

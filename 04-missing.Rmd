@@ -1,1 +1,38 @@
 # Missing values
+
+```{r}
+library(tidyverse)
+library(extracat)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+restaurant<-read.csv('../Desktop/DOHMH_New_York_City_Restaurant_Inspection_Results.csv')
+```
+
+```{r}
+visna(restaurant)
+```
+
+**From the graph above, we can tell that:**
+
+1. **The "score" values are missing for the last several restaurants in the dataset**
+
+2. **The missing values of some certain variables have the same pattern for the first half of the dataset and the second half of the dataset, which is quite unusaul generally. It might be that the dataset is arranged by the author on purpose to have such pattern.**
+
+3. **When the latitude and longitude are both missing, the following four variables are missing too, which makes sense since these vaiables all require the location information. For example, the "community board" values can be known only when the location is known.**
+
+**Although there are some missing values in the dataset, we don't have to worry too much since the percentage of obsevations with missing values is pretty low. We can drop the obsevatins with missing values if needed without pushing too many effects on the whole dataset.**
+
+```{r}
+scoreDF <- restaurant %>% group_by(SCORE) %>%
+summarize(num_lat =n(), num_na =sum(is.na(`Latitude`))) %>% mutate(percent_na =round(num_na/num_lat, 2))
+scoreDF
+```
+
+```{r}
+ggplot(scoreDF) +
+  geom_line(aes(SCORE, percent_na), color='blue')+
+  ggtitle("Score vs Missing location")
+```
