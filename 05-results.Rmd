@@ -4,8 +4,12 @@ a) Which part of NYC has restaurants with relatively low grades and relatively h
  
 b) Is there a relationship between the type of restaurants and the type of violations?
 
-c) Do all restaurants in the same franchise have similar violation types? What might be the reason for the results?
+c) For the franchise restaurants, what type of violations are most common and what might be the reasons?
 
+```{r}
+library(tidyverse)
+library(dplyr)
+```
 
 1. First, take a look at the distributions of all restaurants inspected in NYC. Each point in the following map represents a unique restaurant. It is clear that Manhattan has the highest density of restaurant distribution among all boroughs. The density is also quite high along the coastline for Queens and Brooklyn compared to the densities in the other areas.
 
@@ -97,7 +101,7 @@ type_grade<-restaurant %>%
   ungroup()
 # 如何按照A 的比例排序？
 ggplot(type_grade,aes(x=fct_reorder2(CUISINE.DESCRIPTION,GRADE=="A",GRADE,.desc=FALSE),fill=GRADE,y=prop)) +
-  geom_bar(stat="identity") #+ 
+  geom_bar(stat="identity", position="fill") #+ 
   #coord_flip()
 ```
 
@@ -165,7 +169,88 @@ ggplot(type_grade,aes(x=BORO,fill=GRADE,y=prop)) +
 
 
 6. 
+```{r}
+#Relate the violation code and the violation description
+violation <- distinct(restaurant, VIOLATION.CODE, 
+                      .keep_all = TRUE) %>%
+  select(VIOLATION.CODE, VIOLATION.DESCRIPTION) 
+
+violation <- violation[order(violation$VIOLATION.CODE),]
+
+#Choose a random sample of violation type and the corrsponding observations
+sample_index <- sample(c(1:nrow(violation)), size=10)
+
+violation_sample <- violation[sample_index,]
+
+violation_vector <- as.vector(violation_sample$VIOLATION.CODE)
+
+rest_sample <- restaurant %>%
+  filter(VIOLATION.CODE %in% violation_vector)
+```
+
+```{r}
+type_violation <- rest_sample %>%
+  group_by(CUISINE.DESCRIPTION, VIOLATION.CODE) %>%
+  filter(!CUISINE.DESCRIPTION=='NA') %>% 
+  summarize(count=n()) %>%
+  mutate(prop=count/sum(count)) %>%
+  ungroup()
+```
+
+```{r}
+type_violation <- type_violation %>%
+  mutate(cus_abb=substr(CUISINE.DESCRIPTION,0,3))
+```
+
+```{r}
+ggplot(type_violation,aes(x=CUISINE.DESCRIPTION,y=prop,
+                          fill=VIOLATION.CODE)) +
+  geom_bar(stat="identity") 
+```
 
 
+7. There are a number of franchise restaurants in NYC, including Starbucks, Subway, Burgur King and so on. We want to identify the most common violation types for each franchise. We choose the franchise with more than 500 restaurants, which are the 9 franchises with the largest numbers of restaurants. Since there are a number of violation types, we choose 13 most common violation types among all. 
 
+The franchises selected are "BURGER KING", "CROWN FRIED CHICKEN", "DUNKIN'", "DUNKIN', BASKIN ROBBINS", "KENNEDY FRIED CHICKEN", "MCDONALD'S", "POPEYES", "STARBUCKS" and "SUBWAY".
 
+```{r}
+franchise_name <- restaurant %>%
+  group_by(DBA) %>%
+  summarise(num=n()) %>%
+  filter(num>500)
+
+franchise_name
+```
+
+Here we select the most common violation types.
+```{r}
+violation_code <- restaurant %>%
+  group_by(VIOLATION.CODE) %>%
+  summarise(num=n()) %>%
+  filter(num>3000)
+
+violation_desc <- violation %>%
+  filter(VIOLATION.CODE %in%  
+           as.vector(violation_code$VIOLATION.CODE))
+violation_desc
+```
+
+```{r}
+franchise <- restaurant %>%
+  filter(DBA %in% as.vector(franchise_name$DBA) &
+       VIOLATION.CODE %in% 
+         as.vector(violation_code$VIOLATION.CODE)) %>%
+  mutate(DBA_abb=substr(DBA,0,3)) %>%
+  group_by(DBA, VIOLATION.CODE) %>%
+  summarise(num=n()) %>%
+  mutate(prop=num/sum(num))
+```
+
+```{r}
+ggplot(franchise_order) +
+  geom_col(aes(x=VIOLATION.CODE,y=prop)) +
+  facet_wrap(~DBA) + 
+  theme(axis.text.x = element_text(angle=45, hjust=1))
+```
+
+Above is the graph showing the proportion of violation types for each franchise. Note that the violation type with violation code 10F is the most common one for all of the franchises. The description of this violation is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed."
