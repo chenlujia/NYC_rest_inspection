@@ -7,3 +7,12 @@ site: bookdown::bookdown_site
 
 # Introduction
 
+For people living in NYC, it's always exciting to explore new restaurants as there are thousnads of restaurants in the city of New York. People can find all kinds of cuisine types among these restaurants, including American, Chinese, Japanese, Thai, Italian and so on. However, when trying to find new restaurants of interests, it's better to find a way to avoid those ones with low qualities of foods, sanitation issues, or other unexpected problems.
+
+The Health Department conducts unannounced inspections of restaurants at least once a year. Inspectors check for compliance in food handling, food temperature, personal hygiene and vermin control. Each violation of a regulation gets a certain number of points. At the end of the inspection, the inspector totals the points and this number is the restaurant's inspection score — the lower the score, the better the grade. With this being said, we want to explore the following questions:
+
+1. Which part of NYC has restaurants with relatively low grades and relatively high grades?
+
+2. Is there a relationship between the type of restaurants and the type of violations?
+
+3. Do all restaurants in the same franchise have similar violation types? What might be the reason for the results?

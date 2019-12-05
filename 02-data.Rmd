@@ -1,7 +1,7 @@
 # Data sources
 
-After some explorations and discussions, we have decided to choose a dataset that we are all interested at and is also related to our daily lifr here in NYC.
+Since the data on the source website is pretty messy, we found a dataset which is already cleaned up and includes all information we need. The dataset we are using is from the website NYC OpenData. The dataset is about restaurant inspection results in NYC from three years ago until present time. The dataset contains the restaurant names, the inspection results, the location of restaurants, the violation dates, the boroughs of restaurants and some other information. 
 
-The dataset we are using is from the website NYC OpenData. The dataset is about restaurant inspection results in NYC until Nov. 2019. The dataset contains the restaurant names, the inspection results, the location of restaurants, the violation dates, the boroughs of restaurants and some other information. 
+Records are included for each restaurant that has applied for a permit but has not yet been inspected and for inspections resulting in no violations. Since thousands of restaurants start business and go out of business every year, only restaurants in an active status are included in the dataset. 
 
 There are some missing values in some columns of the dataset, but we will manage to handle this when we process the data.
