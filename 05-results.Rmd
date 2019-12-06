@@ -137,7 +137,7 @@ ggpairs(data=type_grade_mess,columns=1:2,cardinality_threshold =90)
 ```
 
 
-5. Then we look at the grades for restaurants according to borough. 
+5. Then we consider that the boroughs might also have some effects on the grades of restaurants, so we explore the grades of restaurants in different boroughs.
 ```{r}
 restaurant<-restaurant[(!restaurant$BORO=="0")& restaurant$GRADE 
                        %in% c("A","B","C","G","N","P","Z") & (!restaurant$Latitude =="0") & (!restaurant$GRADE =='NA') & (!restaurant$BORO =='NA'),] %>%
@@ -168,44 +168,39 @@ ggplot(type_grade,aes(x=BORO,fill=GRADE,y=prop)) +
 
 
 
-6. 
+6. Will restaurants ahve different types of violations according to thier cuisine types? Here we try to find out whether there is a relationship between the cuisine types and the violation types accordingly. Since there are a total of 84 cuisine types and a total of 75 violation types, which will be too complicated if all been used, we only choose the 14 most common cusine types and the 10 most common violation types in this case.
+
 ```{r}
-#Relate the violation code and the violation description
-violation <- distinct(restaurant, VIOLATION.CODE, 
-                      .keep_all = TRUE) %>%
-  select(VIOLATION.CODE, VIOLATION.DESCRIPTION) 
+type_sample <- restaurant %>%
+  group_by(CUISINE.DESCRIPTION) %>%
+  summarise(num=n()) %>%
+  filter(num>3000)
 
-violation <- violation[order(violation$VIOLATION.CODE),]
-
-#Choose a random sample of violation type and the corrsponding observations
-sample_index <- sample(c(1:nrow(violation)), size=10)
-
-violation_sample <- violation[sample_index,]
-
-violation_vector <- as.vector(violation_sample$VIOLATION.CODE)
-
-rest_sample <- restaurant %>%
-  filter(VIOLATION.CODE %in% violation_vector)
+violation_sample <- restaurant %>%
+  group_by(VIOLATION.CODE) %>%
+  summarise(num=n()) %>%
+  filter(num>4000)
 ```
 
 ```{r}
 type_violation <- rest_sample %>%
-  group_by(CUISINE.DESCRIPTION, VIOLATION.CODE) %>%
-  filter(!CUISINE.DESCRIPTION=='NA') %>% 
+  mutate(cus_abb=substr(CUISINE.DESCRIPTION,0,4)) %>%
+  filter(CUISINE.DESCRIPTION %in%  
+           as.vector(type_sample$CUISINE.DESCRIPTION)) %>%
+  filter(VIOLATION.CODE %in% 
+           violation_sample$VIOLATION.CODE) %>%
+  group_by(cus_abb, VIOLATION.CODE) %>%
+  filter(!cus_abb=='NA') %>% 
   summarize(count=n()) %>%
   mutate(prop=count/sum(count)) %>%
   ungroup()
 ```
 
 ```{r}
-type_violation <- type_violation %>%
-  mutate(cus_abb=substr(CUISINE.DESCRIPTION,0,3))
-```
-
-```{r}
-ggplot(type_violation,aes(x=CUISINE.DESCRIPTION,y=prop,
+ggplot(type_violation,aes(x=cus_abb,y=prop,
                           fill=VIOLATION.CODE)) +
-  geom_bar(stat="identity") 
+  geom_bar(stat="identity")+
+  theme(axis.text.x = element_text(angle=45,hjust=1))
 ```
 
 
@@ -253,4 +248,6 @@ ggplot(franchise_order) +
   theme(axis.text.x = element_text(angle=45, hjust=1))
 ```
 
-Above is the graph showing the proportion of violation types for each franchise. Note that the violation type with violation code 10F is the most common one for all of the franchises. The description of this violation is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed."
+Above is the graph showing the proportion of violation types for each franchise. Note that the violation type with violation code 10F is the most common one for all of the franchises. The description of this violation is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit." 
+
+The violation types with codes 10B and 08A are also very common among all restaurants, with the descriptions-"Plumbing not properly installed or maintained; anti-siphonage or backflow prevention device not provided where required; equipment or floor not properly drained; sewage disposal system in disrepair or not functioning properly." and "Facility not vermin proof. Harborage or conditions conducive to attracting vermin to the premises and/or allowing vermin to exist."
