@@ -12,7 +12,9 @@ For people living in NYC, it's always exciting to explore new restaurants as the
 The Health Department conducts unannounced inspections of restaurants at least once a year. Inspectors check for compliance in food handling, food temperature, personal hygiene and vermin control. Each violation of a regulation gets a certain number of points. At the end of the inspection, the inspector totals the points and this number is the restaurant's inspection score — the lower the score, the better the grade. With this being said, we want to explore the following questions:
 
 1. Which part of NYC has restaurants with relatively low grades and relatively high grades?
-
+ 
 2. Is there a relationship between the type of restaurants and the type of violations?
 
-3. For the franchise restaurants, what type of violations are most common and what might be the reasons?
+3. Are there any trends of scores for each cuisine type as time goes by?
+
+4. For the franchise restaurants, what type of violations are most common and what might be the reasons?

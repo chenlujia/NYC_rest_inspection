@@ -28,7 +28,7 @@ visna(restaurant)
 ```{r}
 scoreDF <- restaurant %>% group_by(SCORE) %>%
 summarize(num_lat =n(), num_na =sum(is.na(`Latitude`))) %>% mutate(percent_na =round(num_na/num_lat, 2))
-scoreDF
+scoreDF                         
 ```
 
 ```{r}

@@ -4,4 +4,6 @@ Since the data on the source website is pretty messy, we found a dataset which i
 
 Records are included for each restaurant that has applied for a permit but has not yet been inspected and for inspections resulting in no violations. Since thousands of restaurants start business and go out of business every year, only restaurants in an active status are included in the dataset. 
 
+Each restaurant was inspected more than once, including initial inspections, re-inspections and reopening inspections. Each restaurant can also be inspected more than once per day, with each violation as a seperate observation in the dataset. The grades are given as either "A" or "NA" for the initial inspections and "A", "B", "C", "Z", "P" for re-inspections or reopening inspections. The grades are given according to scores of violations, with lower scores resulting in better grades. Here "A", "B", and "C" represents score levels, "Z" means "grade pending" and "P" means "Grade Pending issued on re-opening following an initial inspection that resulted in a closure".
+
 There are some missing values in some columns of the dataset, but we will manage to handle this when we process the data.
