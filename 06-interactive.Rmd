@@ -1,133 +1,33 @@
----
-output: html_document
-runtime: shiny
----
 # Interactive component
 
+## Map
 
-```{r setup, include=FALSE}
- # keep this chunk in your .Rmd file
- knitr::opts_chunk$set(warning = FALSE, message = FALSE, warning = FALSE)
-```
+![](docs/Images/Image_1.png)
+
+Users can search restaurants by using selection on the left. (Multiple selection in one section is allowable.)
+
+The map will show the corresponding restaurants by the points. Every single point represents a restaurant:
+
+-If you move your mouse on the map, once it’s on a point, the name of the corresponding restaurant will be shown.
+
+-If you click on a point, some details about the corresponding restaurant will be shown, including id, name and street.
+
+![](docs/Images/Image_2.png)
+
+The darker the area is, the more concentrated the restaurants in that area.
 
 
-```{r }
-library(shiny)
-library(leaflet)
-library(ggplot2)
-library(tidyverse)
-library(plotly)
-library(lubridate)
-library(leaflet.extras)
-library(htmltools)
-restaurant<-read.csv('../Desktop/DOHMH_New_York_City_Restaurant_Inspection_Results.csv')
-restaurant$INSPECTION.DATE<-mdy(restaurant$INSPECTION.DATE)
-restaurant3<-restaurant %>%
-  arrange(INSPECTION.DATE,desc(SCORE))
-restaurant1 <- restaurant %>%
-  filter(Longitude !='0' & Latitude !='0' & 
-           !Longitude=='NA' & !Latitude=='NA'& SCORE!='NA' ) 
-restaurant2<- distinct(restaurant1,CAMIS,Longitude,.keep_all = TRUE)
-restaurant3<-distinct(restaurant3,CAMIS,INSPECTION.DATE,.keep_all = TRUE)
-```
 
-try multiple dependent select 2 -modified
-```{r}
-library(shinyWidgets)
-library(shiny)
-library(leaflet)
+## Line Chart
 
-ui = fluidPage(
-titlePanel("Restaurant Inspection Search"),
-sidebarLayout(
-sidebarPanel(
-  selectizeGroupUI(
-        id = "my-filters",
-        inline = FALSE,
-        params = list(
-            BORO = list(inputId = "BORO", 
-                        title = "Select borough", 
-                        placeholder = 'select'),
-            CUISINE.DESCRIPTION = list(inputId = "CUISINE.DESCRIPTION", 
-                                       title = "Select cusine type", 
-                                       placeholder = 'select'),
-            DBA = list(inputId = "DBA", 
-                       title = "Select restaurant name", 
-                       placeholder = 'select'),
-            STREET = list(inputId = "STREET", 
-                            title = "Select street", 
-                            placeholder = 'select')
-            
-            )
-          ),
-h5("Chick on a point, search for that id and get inspection chart for that restaurant"),
-textInput("CAMIS", NULL, "")
-        ),
+![](docs/Images/Image_3.png)
 
-      mainPanel(
-        leafletOutput("map"),
-                 plotlyOutput("graph")
-    )))
-#server.r
+Type in the restaurant id in the left section, a line chart showing the score change of the restaurant appears below the map.
 
-#df$location <- gsub( " " , "+" , df$location)
-server = function(input, output, session) {
-    res_mod <- callModule(
-module = selectizeGroupServer,
-id = "my-filters",
-data = restaurant2,
-vars = c("BORO", "CUISINE.DESCRIPTION", "DBA", "STREET")
-)
-    
-    filteredData <- reactive({
-      restaurant3[restaurant3$CAMIS==input$CAMIS,]
-  }
-  )
-    
-    
+If you move your mouse on a point, the details about the score will be shown.
 
-  output$map <- renderLeaflet({
-    leaflet(data = res_mod())%>%
-  addTiles() %>%
-  addCircleMarkers(~Longitude, ~Latitude,label=~ htmlEscape(`DBA`),radius = 5,stroke=FALSE,
-             popup = paste("Unique ID: ", res_mod()$CAMIS,
-                           '<br /> restaurant name: ',res_mod()$DBA,
-                           '<br /> Street: ',res_mod()$STREET))
-      
-  })
-  
-  # default graph
-  output$graph <- renderPlotly({
-    plot_ly(restaurant2,x=~INSPECTION.DATE,y=~SCORE)%>%
-      layout(title = "",yaxis = list(title = "Grade°"), 
-             xaxis = list(title = "Time")) %>%
-      highlight(off = "plotly_deselect") 
-  })
+![](docs/Images/Image_4.png)
 
-  # if clicked on map, use filtered data
-  observeEvent(input$CAMIS,
-               output$graph <- renderPlotly({
-                 plot_ly(filteredData(),x=~INSPECTION.DATE,
-                         y=~SCORE,type='scatter',mode="lines+markers",color="red",
-        text=~paste('<b> Inspection Type</b> :', INSPECTION.TYPE,
-                             '<br /> <b>Score</b>: ', SCORE,
-                    '<br /> <b>GRADE</b>: ',GRADE),
-        hoverinfo="text")%>%
-                   layout(title =  paste('Inspection grade changes for ',filteredData()$DBA),yaxis = list(title = "Grade"), 
-                          xaxis = list(title = "Time"))
-               })
-  )
+Notes on use of this interactive graph:
 
-  # if reset, then go back to main data
-  observeEvent(input$reset,
-               output$graph <- renderPlotly({
-                 plot_ly(restaurant2,x=~INSPECTION.DATE,y=~SCORE)%>%
-                   layout(title = "",yaxis = list(title = "Grade°"), 
-                          xaxis = list(title = "Time")) %>%
-                   highlight(off = "plotly_deselect") 
-               }))
-
-}
-
-shinyApp(ui = ui, server = server)
-```
+Make sure you don’t input extra whitespace when type in the id on the left section.
