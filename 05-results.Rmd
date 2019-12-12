@@ -82,7 +82,7 @@ addAwesomeMarkers(data = restaurant, ~lon, ~lat, icon = icons)
 
 ```{r}
 library(treemap)
-type_number<-restaurant_distinct %>%
+type_number<-restaurant %>%
   group_by(CUISINE.DESCRIPTION) %>%
   summarise(n=n())
 ```
@@ -168,11 +168,6 @@ order_init_inspection <- order_init_inspection %>%
   mutate(order=c(1:nrow(order_init_inspection)))
 ```
 
-```{r, comment=TRUE}
-order_init_inspection <- initial_inspection %>%
-  mutate(order=order_init_inspection$order)
-```
-
 ```{r}
 p <-ggplot(initial_inspection, aes(x=GRADE,y=prop))+
   geom_bar(stat='identity')+
@@ -182,7 +177,7 @@ p <-ggplot(initial_inspection, aes(x=GRADE,y=prop))+
   ease_aes('cubic-in-out')+
   labs(title = "Type {closest_state}")
 
-animate(p)#,duration=50,fps=30)
+animate(p,duration=50,fps=30)
 anim_save("init_restaurant-animated-barplot-transition.gif")
 ```
 
@@ -214,7 +209,7 @@ p <-ggplot(re_inspection, aes(x=GRADE,y=prop))+
   ease_aes('cubic-in-out')+
   labs(title = "Type {closest_state}")
 
-animate(p)#,duration=50,fps=30)
+animate(p,duration=50,fps=30)
 anim_save("re_restaurant-animated-barplot-transition.gif")
 ```
 
@@ -239,12 +234,12 @@ p <-ggplot(re_inspection, aes(x=GRADE,y=prop))+
   ease_aes('cubic-in-out')+
   labs(title = "Type {closest_state}")
 
-animate(p)#,duration=50,fps=30)
+animate(p,duration=50,fps=30)
 anim_save("re_restaurant-animated-barplot-transition_zp.gif")
 ```
 
 The gif above shows the proportions of grade "Z" or "P" of each cuisine type for the re-inspections. As mentioned in the data section, "Z" means "grade pending" and "P" means "Grade Pending issued on re-opening following an initial inspection that resulted in a closure". These two types of grades are always resulted from serious problems in the initial inspections. As shown in the gif, we can tell that there are some restaurants with serious problems in the initial inspection for most of the cuisine types. There are also some cuisine types with no restaurants having serious problems for the initial inspections, inlcuding "Barbecue", "Basque", "Cajun", "Californian", "Czech", "English" and "Fruits and Vegetables".
-#More explanation needed?#
+
 
 
 
@@ -273,12 +268,12 @@ p <-ggplot(quarter_avg, aes(QUARTER,avg_score,group=1))+
   ease_aes('cubic-in-out')+
   labs(title = "Type {closest_state}")
 
-animate(p)#,duration=50,fps=30)
+animate(p,duration=50,fps=30)
 anim_save("time-score_facted_by_type.gif")
 ```
 
 The gif above shows the changes of the scores for each cuisine types from 2012 till current time. As mentioned in the data section, lower scores lead to better grades. From the gif, we can tell that the average scores for all cuisine types are between 10 and 20 in most of the quarters. For most cuisine types, there are no obvious contionus increasing or decreasing trends in scores as a whole pattern as time goes by, ignoring the changes of scores back and forth in bwtween. However, there are some cuisine types showing a weak trend of increasing in scores, including "Afghan", "African", "Asian", "Australian", "Bakery", "Barbecue", "Eastern European" and "German". 
-#More explanation needed?#
+
 
 
 6. Then we consider that the boroughs might also have some effects on the grades of restaurants, so we explore the grades of restaurants in different boroughs.
@@ -360,7 +355,6 @@ ggplot(type_violation,aes(x=cus_abb,y=prop,
 Above is the graph showing the proportion of violation types for each cuisine type. There is no obvious relationship between the cuisine types and the violation types. However, it's not hard to identify that the bars for violation code 10F are higher much higher for restaurants of cuisine types "Cafe" and "Dounts". The restaurants of cuisine type "chicken" also have relatively high proportion of violation type 10F. Note that the proportions for violation type with code 02B are realtively small for cuusine types "Cafe" and "Donuts" at the same time. 
 
 The description of 10F is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit." and the description of 02B is "Hot food item not held at or above 140 F." The reason for his similarity between "Cafe" and "Donuts" might be that both cuisine types serve desserts and drinks and might have special requirements for food and drink preperations.
-***more explanation needed?***
 
 
 
@@ -427,5 +421,5 @@ The violation types with codes 10B and 08A are also very common among all restau
 
 The violation types with code 06D is common for "DUNKIN'", "DUNKIN', BASKIN ROBBINS" and "SUBWAY", with the description "Food contact surface not properly washed, rinsed and sanitized after each use and following any activity when contamination may have occurred." The reason for this similarity might be that "DUNKIN" and "SUBWAY" mainly serve bread and donuts and this violation might be common for this type of cuisines. 
 
-***More explanation needed?***
+
 

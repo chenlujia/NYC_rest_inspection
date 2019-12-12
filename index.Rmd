@@ -1,7 +1,7 @@
 --- 
-title: NYC Restaurant Inspection
-author: Jiaqi Tang, Ying Du, Chenlu Jia
-date: 2019-12-04
+title: "NYC Restaurant Inspection"
+author: "Jiaqi Tang, Ying Du, Chenlu Jia"
+date: '2019-12-04'
 site: bookdown::bookdown_site
 ---
 

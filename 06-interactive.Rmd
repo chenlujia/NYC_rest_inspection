@@ -1,3 +1,129 @@
 # Interactive component
 
 
+```{r setup, include=FALSE}
+ # keep this chunk in your .Rmd file
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+```
+
+
+```{r }
+library(shiny)
+library(leaflet)
+library(ggplot2)
+library(tidyverse)
+library(plotly)
+library(lubridate)
+library(leaflet.extras)
+library(htmltools)
+restaurant<-read.csv('DOHMH_New_York_City_Restaurant_Inspection_Results.csv')
+restaurant$INSPECTION.DATE<-mdy(restaurant$INSPECTION.DATE)
+restaurant3<-restaurant %>%
+  arrange(INSPECTION.DATE,desc(SCORE))
+restaurant1 <- restaurant %>%
+  filter(Longitude !='0' & Latitude !='0' & 
+           !Longitude=='NA' & !Latitude=='NA'& SCORE!='NA' ) 
+restaurant2<- distinct(restaurant1,CAMIS,Longitude,.keep_all = TRUE)
+restaurant3<-distinct(restaurant3,CAMIS,INSPECTION.DATE,.keep_all = TRUE)
+```
+
+try multiple dependent select 2 -modified
+```{r}
+library(shinyWidgets)
+library(shiny)
+library(leaflet)
+
+ui = fluidPage(
+titlePanel("Restaurant Inspection Search"),
+sidebarLayout(
+sidebarPanel(
+  selectizeGroupUI(
+        id = "my-filters",
+        inline = FALSE,
+        params = list(
+            BORO = list(inputId = "BORO", 
+                        title = "Select borough", 
+                        placeholder = 'select'),
+            CUISINE.DESCRIPTION = list(inputId = "CUISINE.DESCRIPTION", 
+                                       title = "Select cusine type", 
+                                       placeholder = 'select'),
+            DBA = list(inputId = "DBA", 
+                       title = "Select restaurant name", 
+                       placeholder = 'select'),
+            STREET = list(inputId = "STREET", 
+                            title = "Select street", 
+                            placeholder = 'select')
+            
+            )
+          ),
+h5("Chick on a point, search for that id and get inspection chart for that restaurant"),
+textInput("CAMIS", NULL, "")
+        ),
+
+      mainPanel(
+        leafletOutput("map"),
+                 plotlyOutput("graph")
+    )))
+#server.r
+
+#df$location <- gsub( " " , "+" , df$location)
+server = function(input, output, session) {
+    res_mod <- callModule(
+module = selectizeGroupServer,
+id = "my-filters",
+data = restaurant2,
+vars = c("BORO", "CUISINE.DESCRIPTION", "DBA", "STREET")
+)
+    
+    filteredData <- reactive({
+      restaurant3[restaurant3$CAMIS==input$CAMIS,]
+  }
+  )
+    
+    
+
+  output$map <- renderLeaflet({
+    leaflet(data = res_mod())%>%
+  addTiles() %>%
+  addCircleMarkers(~Longitude, ~Latitude,label=~ htmlEscape(`DBA`),radius = 5,stroke=FALSE,
+             popup = paste("Unique ID: ", res_mod()$CAMIS,
+                           '<br /> restaurant name: ',res_mod()$DBA,
+                           '<br /> Street: ',res_mod()$STREET))
+      
+  })
+  
+  # default graph
+  output$graph <- renderPlotly({
+    plot_ly(restaurant2,x=~INSPECTION.DATE,y=~SCORE)%>%
+      layout(title = "",yaxis = list(title = "Grade°"), 
+             xaxis = list(title = "Time")) %>%
+      highlight(off = "plotly_deselect") 
+  })
+
+  # if clicked on map, use filtered data
+  observeEvent(input$CAMIS,
+               output$graph <- renderPlotly({
+                 plot_ly(filteredData(),x=~INSPECTION.DATE,
+                         y=~SCORE,type='scatter',mode="lines+markers",color="red",
+        text=~paste('<b> Inspection Type</b> :', INSPECTION.TYPE,
+                             '<br /> <b>Score</b>: ', SCORE,
+                    '<br /> <b>GRADE</b>: ',GRADE),
+        hoverinfo="text")%>%
+                   layout(title =  paste('Inspection grade changes for ',filteredData()$DBA),yaxis = list(title = "Grade"), 
+                          xaxis = list(title = "Time"))
+               })
+  )
+
+  # if reset, then go back to main data
+  observeEvent(input$reset,
+               output$graph <- renderPlotly({
+                 plot_ly(restaurant2,x=~INSPECTION.DATE,y=~SCORE)%>%
+                   layout(title = "",yaxis = list(title = "Grade°"), 
+                          xaxis = list(title = "Time")) %>%
+                   highlight(off = "plotly_deselect") 
+               }))
+
+}
+
+shinyApp(ui = ui, server = server)
+```
