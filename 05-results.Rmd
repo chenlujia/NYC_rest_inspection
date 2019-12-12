@@ -1,5 +1,9 @@
 # Results
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
 Questions:
 
 a) Which part of NYC has restaurants with relatively low grades and relatively high grades?
