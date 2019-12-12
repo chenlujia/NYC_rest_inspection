@@ -1,9 +1,13 @@
+---
+output: html_document
+runtime: shiny
+---
 # Interactive component
 
 
 ```{r setup, include=FALSE}
  # keep this chunk in your .Rmd file
- knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+ knitr::opts_chunk$set(warning = FALSE, message = FALSE, warning = FALSE)
 ```
 
 
@@ -16,7 +20,7 @@ library(plotly)
 library(lubridate)
 library(leaflet.extras)
 library(htmltools)
-restaurant<-read.csv('DOHMH_New_York_City_Restaurant_Inspection_Results.csv')
+restaurant<-read.csv('../Desktop/DOHMH_New_York_City_Restaurant_Inspection_Results.csv')
 restaurant$INSPECTION.DATE<-mdy(restaurant$INSPECTION.DATE)
 restaurant3<-restaurant %>%
   arrange(INSPECTION.DATE,desc(SCORE))
