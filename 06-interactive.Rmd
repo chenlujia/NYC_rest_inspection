@@ -21,6 +21,8 @@ The map will show the corresponding restaurants by the points. Every single poin
 
 -You can also use the dropdown menu on the left for filtering and individual searchings.
 
+-If you feel the point too vague to be identified, zoom in the map and the point will be more clear.
+
 ![](docs/Images/Image_2.png)
 
 The darker the area is, the more concentrated the restaurants in that area.

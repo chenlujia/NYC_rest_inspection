@@ -212,6 +212,16 @@ order_re_inspection <- order_re_inspection[order(order_re_inspection$prop),]
 ```
 
 ```{r}
+order_re_inspection$type_f<-factor(order_re_inspection$CUISINE.DESCRIPTION)
+order_re_inspection$type_f<-fct_inorder(order_re_inspection$type_f)
+
+cuisine_level<-levels(order_re_inspection$type_f)
+
+re_inspection$CUISINE.DESCRIPTION<-
+  factor(re_inspection$CUISINE.DESCRIPTION,levels=cuisine_level)
+```
+
+```{r}
 p <-ggplot(re_inspection, aes(x=GRADE,y=prop))+
   geom_bar(stat='identity')+
   transition_states(CUISINE.DESCRIPTION,transition_length=10,
@@ -236,7 +246,28 @@ re_inspection<-
   summarise(count=n()) %>%
   mutate(prop=count/sum(count)) %>%
   ungroup()
+```
 
+```{r}
+order_re_inspection <- re_inspection %>%
+  group_by(CUISINE.DESCRIPTION, GRADE) %>%
+  filter(GRADE=='P') %>%
+  ungroup()
+
+order_re_inspection <- order_re_inspection[order(order_re_inspection$prop),]
+```
+
+```{r}
+order_re_inspection$type_f<-factor(order_re_inspection$CUISINE.DESCRIPTION)
+order_re_inspection$type_f<-fct_inorder(order_re_inspection$type_f)
+
+cuisine_level<-levels(order_re_inspection$type_f)
+
+re_inspection$CUISINE.DESCRIPTION<-
+  factor(re_inspection$CUISINE.DESCRIPTION,levels=cuisine_level)
+```
+
+```{r}
 p <-ggplot(re_inspection, aes(x=GRADE,y=prop))+
   geom_bar(stat='identity')+
   transition_states(CUISINE.DESCRIPTION,transition_length=10,
