@@ -73,7 +73,16 @@
 <li class="chapter" data-level="2" data-path="data-sources.html"><a href="data-sources.html"><i class="fa fa-check"></i><b>2</b> Data sources</a></li>
 <li class="chapter" data-level="3" data-path="data-transformation.html"><a href="data-transformation.html"><i class="fa fa-check"></i><b>3</b> Data transformation</a></li>
 <li class="chapter" data-level="4" data-path="missing-values.html"><a href="missing-values.html"><i class="fa fa-check"></i><b>4</b> Missing values</a></li>
-<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a></li>
+<li class="chapter" data-level="5" data-path="results.html"><a href="results.html"><i class="fa fa-check"></i><b>5</b> Results</a><ul>
+<li class="chapter" data-level="5.1" data-path="results.html"><a href="results.html#restaurant-distribution"><i class="fa fa-check"></i><b>5.1</b> Restaurant Distribution</a></li>
+<li class="chapter" data-level="5.2" data-path="results.html"><a href="results.html#cuisine-types"><i class="fa fa-check"></i><b>5.2</b> Cuisine Types</a></li>
+<li class="chapter" data-level="5.3" data-path="results.html"><a href="results.html#boroughs-vs-cuisine-types"><i class="fa fa-check"></i><b>5.3</b> Boroughs vs Cuisine Types</a></li>
+<li class="chapter" data-level="5.4" data-path="results.html"><a href="results.html#grades-vs-cuisine-types"><i class="fa fa-check"></i><b>5.4</b> Grades vs Cuisine Types</a></li>
+<li class="chapter" data-level="5.5" data-path="results.html"><a href="results.html#scores-vs-cuisine-types-as-time-changes"><i class="fa fa-check"></i><b>5.5</b> Scores vs Cuisine Types as Time Changes</a></li>
+<li class="chapter" data-level="5.6" data-path="results.html"><a href="results.html#boroughs-vs-grades"><i class="fa fa-check"></i><b>5.6</b> Boroughs vs Grades</a></li>
+<li class="chapter" data-level="5.7" data-path="results.html"><a href="results.html#cuisine-types-vs-violation-types"><i class="fa fa-check"></i><b>5.7</b> Cuisine Types vs Violation Types</a></li>
+<li class="chapter" data-level="5.8" data-path="results.html"><a href="results.html#franchise-vs-violation-types"><i class="fa fa-check"></i><b>5.8</b> Franchise vs Violation Types</a></li>
+</ul></li>
 <li class="chapter" data-level="6" data-path="interactive-component.html"><a href="interactive-component.html"><i class="fa fa-check"></i><b>6</b> Interactive component</a><ul>
 <li class="chapter" data-level="6.1" data-path="interactive-component.html"><a href="interactive-component.html#map"><i class="fa fa-check"></i><b>6.1</b> Map</a></li>
 <li class="chapter" data-level="6.2" data-path="interactive-component.html"><a href="interactive-component.html#line-chart"><i class="fa fa-check"></i><b>6.2</b> Line Chart</a></li>
@@ -100,6 +109,8 @@
             <section class="normal" id="section-">
 <div id="interactive-component" class="section level1">
 <h1><span class="header-section-number">Chapter 6</span> Interactive component</h1>
+<p>In this interactive part, we created a map with points representing restaurant locations. We want to provide users with a tool to look at the
+scores of restaurants that they might be interested at, as well as the score changings by time. We hope this interactive map can give users a general idea of qualities of the restaurants and how they change as time goes by.</p>
 <div id="map" class="section level2">
 <h2><span class="header-section-number">6.1</span> Map</h2>
 <p><img src="docs/Images/Image_1.png" /></p>
@@ -107,6 +118,7 @@
 <p>The map will show the corresponding restaurants by the points. Every single point represents a restaurant:</p>
 <p>-If you move your mouse on the map, once it’s on a point, the name of the corresponding restaurant will be shown.</p>
 <p>-If you click on a point, some details about the corresponding restaurant will be shown, including id, name and street.</p>
+<p>-You can also use the dropdown menu on the left for filtering and individual searchings.</p>
 <p><img src="docs/Images/Image_2.png" /></p>
 <p>The darker the area is, the more concentrated the restaurants in that area.</p>
 </div>

@@ -1,3 +1,5 @@
 # Data transformation
 
-The dataset is in CSV form on the source website. We downloaded the CSV file and loaded it as a dataframe in RStudio. Most of the cleanings are done while analyzing the dataset in the result section below.
+The dataset is in CSV form on the source website. We downloaded the CSV file and loaded it as a dataframe in RStudio. Most of the cleanings are done while analyzing the dataset in the result section.
+
+In the result section, rows with missing data values are removed. Grouping of the data is also used to divide the observations according to the needed variables.

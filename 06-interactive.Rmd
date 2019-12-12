@@ -12,6 +12,8 @@ The map will show the corresponding restaurants by the points. Every single poin
 
 -If you click on a point, some details about the corresponding restaurant will be shown, including id, name and street.
 
+-You can also use the dropdown menu on the left for filtering and individual searchings.
+
 ![](docs/Images/Image_2.png)
 
 The darker the area is, the more concentrated the restaurants in that area.

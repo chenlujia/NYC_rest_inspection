@@ -28,7 +28,9 @@ library(transformr)
 restaurant<-read.csv('../Desktop/DOHMH_New_York_City_Restaurant_Inspection_Results.csv')
 ```
 
-1. First, take a look at the distributions of all restaurants inspected in NYC. Each point in the following map represents a unique restaurant. It is clear that Manhattan has the highest density of restaurant distribution among all boroughs. The density is also quite high along the coastline for Queens and Brooklyn compared to the densities in the other areas.
+## Restaurant Distribution
+
+First, take a look at the distributions of all restaurants inspected in NYC. Each point in the following map represents a unique restaurant. It is clear that Manhattan has the highest density of restaurant distribution among all boroughs. The density is also quite high along the coastline for Queens and Brooklyn compared to the densities in the other areas.
 
 ```{r}
 library(ggmap)
@@ -43,13 +45,14 @@ ggmap(nyc_map)+
   geom_point(aes(x=restaurant$Longitude,y=restaurant$Latitude),data=restaurant,alpha=0.1,size=0.7)
 ```
 
-Here is an interactive map to show the number of restaurants in each selected area. Zoom-in and Zoom-out allow for inspection on smaller and larger scale.
+Here is an interactive map to show the number of restaurants in each selected area. Zoom-in and Zoom-out allow for inspection on smaller and larger scale. The color of the circles indicates the quantity of restaurants in the surrounding area as follows: Red, over 100; Yellow, between 10 and 100; Green, less than 10. When you move your mouse on a circle, the corresponding surrounding area is shaded by blue.
 
 ```{r}
 library(leaflet)
 library(leaflet.extras)
 library(htmltools)
 restaurant %>%
+  filter(!Latitude=='0') %>%
   leaflet() %>%
   addTiles() %>%
   addCircleMarkers(
@@ -59,30 +62,11 @@ restaurant %>%
   ) 
 ```
 
-```{r}
-lat <- mean(restaurant$Latitude)
-lon <- mean(restaurant$Longitude)
-
-leaflet(restaurant) %>%
-  addProviderTiles(providers$CartoDB.DarkMatterNoLabels) %>%
-  addWebGLHeatmap(size = 15, units = "px")  %>%
-  setView(lng = lon, lat = lat, zoom = 10)
-```
-
-```{r}
-set.seed(111)
-icons <- awesomeIcons(icon = "whatever",
-                      iconColor = "black",
-                      library = "ion",
-                      markerColor = restaurant$CUISINE.DESCRIPTION)
-
-leaflet() %>%
-addProviderTiles("OpenStreetMap.Mapnik") %>%
-addAwesomeMarkers(data = restaurant, ~lon, ~lat, icon = icons)
-```
 
 
-2. Now we will take a look at the cuisine type of all restaurants inspected. we notice that American and Chinese cuisines take a large percentage in the restaurants inspected. Since the dataset is quite general on all active restaurants in NYC, we can tell that most of the restaurants are American or Chinese in NYC. The number of American restaurants is over 80,000, which is quite surprising for us as this number is much larger than we thought it to be.
+## Cuisine Types
+
+Now we will take a look at the cuisine type of all restaurants inspected. we notice that American and Chinese cuisines take a large percentage in the restaurants inspected. Since the dataset is quite general on all active restaurants in NYC, we can tell that most of the restaurants are American or Chinese in NYC. The number of American restaurants is over 80,000, which is quite surprising for us as this number is much larger than we thought it to be.
 
 ```{r}
 library(treemap)
@@ -104,7 +88,9 @@ treemap(type_number,
 ```
 
 
-3. Now we are interested in exploring whether there is a relationship between boroughs and cuisine types. Here we use a stacked bar chart with each bar representing a certain cuisine type and fill each bar according to the percentage of this type in each borough. Note that we only take into account the cuisine types with quantities over 100 in each borough to reduce the complexity of the chart and make it more clear. Since each of the restaurant is inspected more than once, we only count each restaurant once by select distinct rows.
+## Boroughs vs Cuisine Types
+
+Now we are interested in exploring whether there is a relationship between boroughs and cuisine types. Here we use a stacked bar chart with each bar representing a certain cuisine type and fill each bar according to the percentage of this type in each borough. Note that we only take into account the cuisine types with quantities over 100 in each borough to reduce the complexity of the chart and make it more clear. Since each of the restaurant is inspected more than once, we only count each restaurant once by select distinct rows.
 
 ```{r}
 restaurant_distinct <- distinct(restaurant,CAMIS,.keep_all = TRUE)
@@ -121,6 +107,7 @@ type_boro <- restaurant_distinct %>%
   group_by(CUISINE.DESCRIPTION,BORO) %>%
   summarize(count=n()) %>%
   mutate(prop=count/sum(count)) %>%
+  filter(!BORO=='0') %>%
   ungroup() 
 
 ggplot(type_boro,aes(x=CUISINE.DESCRIPTION,fill=BORO,y=prop)) +
@@ -131,11 +118,12 @@ ggplot(type_boro,aes(x=CUISINE.DESCRIPTION,fill=BORO,y=prop)) +
   ggtitle("Proportion of Cuisines in Each Boro")
 ```
 
-The graph above shows the proportion of each cuisine type in each borough. It is clear that most of the restaurants are in Manhattan, Brooklyn and Queens, which is not surprising. However, there are some interesting trends that worth being pointed out. Most of the Korean restaurants are in Queens, which is not as we expected it to be since there is a k-town area in Manhattan and we expected there are more Korean restaurants in Manhattan. However, there is also a bigger k-town in Queens, which is non-Manhattan prices and less touristy. This explains why there are more Korean restaurants in Queens. Another interesting observation is that more than 3/4 of the French restaurants are in Manhattan. There is no official explanation for this condition. However, what we think might be the reason is that French restaurants are usually of premium qualities ang also higher prices. Since people living in Manhattan are more likely to have higher incomes and there are also more tourists in Manhattan who are willing to pay higher prices for meals, the French restaurants, targeting these kinds of people, are more likely to run business in Manhattan.
+The graph above shows the proportion of each cuisine type in each borough. It is clear that most of the restaurants are in Manhattan, Brooklyn and Queens, which is not surprising. However, there are some interesting trends that worth being pointed out. Most of the Korean restaurants are in Queens, which is not as we expected it to be since there is a k-town area in Manhattan and we expected there are more Korean restaurants in Manhattan. However, there is also a bigger k-town in Queens, which is non-Manhattan prices and less touristy. This explains why there are more Korean restaurants in Queens. Another interesting observation is that more than 3/4 of the French restaurants are in Manhattan. There is no official explanation for this condition. However, what we think might be the reason is that French restaurants are usually of premium qualities and also higher prices. Since people living in Manhattan are more likely to have higher incomes and there are also more tourists in Manhattan who are willing to pay higher prices for meals, the French restaurants, targeting these kinds of people, are more likely to run business in Manhattan.
 
 
+## Grades vs Cuisine Types
 
-4. Now we want to take a look at the grades according to each cuisine type. As mentioned before in the data section, there are more than one inspection types and here we divide all inspection types into two groups-initial inspection and re-inspection. For initial inspections, the grades are either "A" or "NA". For re-inspections, the grades are given as "A", "B", "C", "Z" or "P".
+Now we want to take a look at the grades according to each cuisine type. As mentioned before in the data section, there are more than one inspection types and here we divide all inspection types into two groups-initial inspection and re-inspection. For initial inspections, the grades are either "A" or "NA". For re-inspections, the grades are given as "A", "B", "C", "Z" or "P".
 
 ```{r}
 inspection_type <- restaurant %>%
@@ -168,8 +156,18 @@ order_init_inspection <- initial_inspection %>%
 
 order_init_inspection <- order_init_inspection[order(order_init_inspection$prop),]
 
-order_init_inspection <- order_init_inspection %>%
-  mutate(order=c(1:nrow(order_init_inspection)))
+#order_init_inspection <- order_init_inspection %>%
+#  mutate(order=c(1:nrow(order_init_inspection)))
+```
+
+```{r}
+order_init_inspection$CUISINE.DESCRIPTION<-
+  fct_inorder(order_init_inspection$CUISINE.DESCRIPTION)
+
+cuisine_level<-levels(order_init_inspection$CUISINE.DESCRIPTION)
+
+initial_inspection$CUISINE.DESCRIPTION<-
+  factor(initial_inspection$CUISINE.DESCRIPTION,levels=cuisine_level)
 ```
 
 ```{r}
@@ -202,6 +200,15 @@ re_inspection<-
   summarise(count=n()) %>%
   mutate(prop=count/sum(count)) %>%
   ungroup() 
+```
+
+```{r}
+order_re_inspection <- re_inspection %>%
+  group_by(CUISINE.DESCRIPTION, GRADE) %>%
+  filter(GRADE=='A') %>%
+  ungroup()
+
+order_re_inspection <- order_re_inspection[order(order_re_inspection$prop),]
 ```
 
 ```{r}
@@ -245,9 +252,9 @@ anim_save("re_restaurant-animated-barplot-transition_zp.gif")
 The gif above shows the proportions of grade "Z" or "P" of each cuisine type for the re-inspections. As mentioned in the data section, "Z" means "grade pending" and "P" means "Grade Pending issued on re-opening following an initial inspection that resulted in a closure". These two types of grades are always resulted from serious problems in the initial inspections. As shown in the gif, we can tell that there are some restaurants with serious problems in the initial inspection for most of the cuisine types. There are also some cuisine types with no restaurants having serious problems for the initial inspections, inlcuding "Barbecue", "Basque", "Cajun", "Californian", "Czech", "English" and "Fruits and Vegetables".
 
 
+## Scores vs Cuisine Types as Time Changes
 
-
-5. We are also interested at the trends of how the scores change for each cuisine type as time goes by. We calculate the average scores for all restaurants under each cuisine types for each quarter starting from 2013 till current time. 
+We are also interested at the trends of how the scores change for each cuisine type as time goes by. We calculate the average scores for all restaurants under each cuisine types for each quarter starting from 2013 till current time. 
 
 #quarter-averageScore(faceted by cuisine type)
 ```{r}
@@ -279,8 +286,9 @@ anim_save("time-score_facted_by_type.gif")
 The gif above shows the changes of the scores for each cuisine types from 2012 till current time. As mentioned in the data section, lower scores lead to better grades. From the gif, we can tell that the average scores for all cuisine types are between 10 and 20 in most of the quarters. For most cuisine types, there are no obvious contionus increasing or decreasing trends in scores as a whole pattern as time goes by, ignoring the changes of scores back and forth in bwtween. However, there are some cuisine types showing a weak trend of increasing in scores, including "Afghan", "African", "Asian", "Australian", "Bakery", "Barbecue", "Eastern European" and "German". 
 
 
+## Boroughs vs Grades
 
-6. Then we consider that the boroughs might also have some effects on the grades of restaurants, so we explore the grades of restaurants in different boroughs.
+Then we consider that the boroughs might also have some effects on the grades of restaurants, so we explore the grades of restaurants in different boroughs.
 ```{r}
 restaurant<-restaurant[(!restaurant$BORO=="0")& restaurant$GRADE 
                        %in% c("A","B","C","G","P","Z") & (!restaurant$Latitude =="0") & (!restaurant$GRADE =='NA') & (!restaurant$BORO =='NA'),] %>%
@@ -317,8 +325,9 @@ ggplot(type_grade,aes(x=BORO,fill=GRADE,y=prop)) +
 The graph above shows the same result as we mentioned before-the grades of restaurants are not much affected by the boroughs. We can tell that although the proportion of each grade differs a little for each borough, there is no big difference that worth taking into account.
 
 
+## Cuisine Types vs Violation Types
 
-7. Will restaurants have different types of violations according to thier cuisine types? Here we try to find out whether there is a relationship between the cuisine types and the violation types accordingly. Since there are a total of 84 cuisine types and a total of 75 violation types, which will be too complicated if all been used, we only choose the 14 most common cusine types and the 9 most common violation types in this case.
+Will restaurants have different types of violations according to thier cuisine types? Here we try to find out whether there is a relationship between the cuisine types and the violation types accordingly. Since there are a total of 84 cuisine types and a total of 75 violation types, which will be too complicated if all been used, we only choose the 14 most common cusine types and the 9 most common violation types in this case.
 
 ```{r}
 type_sample <- restaurant %>%
@@ -361,9 +370,9 @@ Above is the graph showing the proportion of violation types for each cuisine ty
 The description of 10F is "Non-food contact surface improperly constructed. Unacceptable material used. Non-food contact surface or equipment improperly maintained and/or not properly sealed, raised, spaced or movable to allow accessibility for cleaning on all sides, above and underneath the unit." and the description of 02B is "Hot food item not held at or above 140 F." The reason for his similarity between "Cafe" and "Donuts" might be that both cuisine types serve desserts and drinks and might have special requirements for food and drink preperations.
 
 
+## Franchise vs Violation Types
 
-
-8. There are a number of franchise restaurants in NYC, including Starbucks, Subway, Burgur King and so on. We want to identify the most common violation types for each franchise. We choose the franchise with more than 500 observations, which are the 9 franchises with the largest numbers of observations. Since there are a number of violation types, we choose 9 most common violation types among all. 
+There are a number of franchise restaurants in NYC, including Starbucks, Subway, Burgur King and so on. We want to identify the most common violation types for each franchise. We choose the franchise with more than 500 observations, which are the 9 franchises with the largest numbers of observations. Since there are a number of violation types, we choose 9 most common violation types among all. 
 
 The franchises selected are "BURGER KING", "CROWN FRIED CHICKEN", "DUNKIN'", "DUNKIN', BASKIN ROBBINS", "KENNEDY FRIED CHICKEN", "MCDONALD'S", "POPEYES", "STARBUCKS" and "SUBWAY".
 
