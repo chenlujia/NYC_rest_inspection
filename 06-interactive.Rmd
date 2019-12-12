@@ -3,6 +3,10 @@
 In this interactive part, we created a map with points representing restaurant locations. We want to provide users with a tool to look at the
 scores of restaurants that they might be interested at, as well as the score changings by time. We hope this interactive map can give users a general idea of qualities of the restaurants and how they change as time goes by.
 
+Here is the link to the map:
+
+https://jiaqi-tang.shinyapps.io/NYC_RESTAURANT_INSPECTION/
+
 ## Map
 
 ![](docs/Images/Image_1.png)
