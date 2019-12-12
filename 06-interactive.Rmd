@@ -23,6 +23,8 @@ The map will show the corresponding restaurants by the points. Every single poin
 
 -If you feel the point too vague to be identified, zoom in the map and the point will be more clear.
 
+-If you want to know the corresponding description of the violation code, use the bottom bar for searching.
+
 ![](docs/Images/Image_2.png)
 
 The darker the area is, the more concentrated the restaurants in that area.
