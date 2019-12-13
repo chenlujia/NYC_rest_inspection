@@ -44,3 +44,12 @@ If you move your mouse on a point, the details about the score will be shown.
 Notes on use of this interactive graph:
 
 Make sure you don’t input extra whitespace when type in the id on the left section.
+
+## Violation Type Search
+
+![](docs/Images/Image_5.png)
+
+Type in the violation code as shown in the line chart on the right, the description of that specific code will appear below.
+
+The search supports only one violation code at a time.
+
